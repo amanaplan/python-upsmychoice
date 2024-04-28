@@ -68,8 +68,6 @@ def _login(session):
     csrf = parsed.find(CSRF_FIND_TAG, CSRF_FIND_ATTR).get(VALUE_ATTR)
     resp = session.post(LOGIN_URL, {
         'userID': session.auth.username,
-        'password': session.auth.password,
-        'loginAction': 'X',
         'CSRFToken': csrf,
         'loc': session.auth.locale
     })
@@ -79,6 +77,13 @@ def _login(session):
     error = parsed.find(ERROR_FIND_TAG, ERROR_FIND_ATTR)
     if error and error.string:
         raise UPSError(error.string.strip())
+    csrf2 = parsed.find(CSRF_FIND_TAG, CSRF_FIND_ATTR).get(VALUE_ATTR)
+    resp2 = session.post(LOGIN_URL, {
+        'username': session.auth.username,
+        'password': session.auth.password,
+        'CSRFToken': csrf,
+        'loc': session.auth.locale
+    })
     _save_cookies(session.cookies, session.auth.cookie_path)
 
 
