@@ -81,9 +81,15 @@ def _login(session):
     resp2 = session.post(LOGIN_URL, {
         'username': session.auth.username,
         'password': session.auth.password,
-        'CSRFToken': csrf,
+        'CSRFToken': csrf2,
         'loc': session.auth.locale
     })
+    if resp2.status_code == 403:
+        raise UPSError('login failure')
+    parsed2 = BeautifulSoup(resp2.text, HTML_PARSER)
+    error2 = parsed2.find(ERROR_FIND_TAG, ERROR_FIND_ATTR)
+    if error2 and error2.string:
+        raise UPSError(error2.string.strip())
     _save_cookies(session.cookies, session.auth.cookie_path)
 
 
